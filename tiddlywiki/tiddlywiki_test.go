@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -93,11 +94,17 @@ func TestTiddlywikiGetAll(t *testing.T) {
 		if len(tiddlers) != 2 {
 			t.Errorf("len of tiddlers is %d", len(tiddlers))
 		}
+
+		tags := strings.Split(tiddlers[1].Tags, " ")
+		if len(tags) != 3 {
+			t.Errorf("len of tags is %d", len(tags))
+		}
 	})
 }
 
 func TestTiddlywikiGet(t *testing.T) {
 	// Sample json
+
 	jsonResponse := `
 	{
 		"created": "20191229203445271",
@@ -124,6 +131,7 @@ func TestTiddlywikiGet(t *testing.T) {
 		tiddler, err := tw.Get("Tiddler 1")
 		want := "Tiddler 1"
 
+		fmt.Printf("%#v\n", tiddler)
 		if err != nil {
 			t.Errorf("Couldn't get tiddler: %s", err)
 		}

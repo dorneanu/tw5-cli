@@ -119,20 +119,20 @@ func (t *TW) Convert2Tiddlers(data []map[string]interface{}) []*Tiddler {
 	// values contains JSON data
 	for _, values := range data {
 
-		// keys contains available keys in the map
-		keys := make([]string, 0, len(values))
-
-		// Copy keys
-		for k := range values {
-			keys = append(keys, k)
+		// First create json string from map[string]interface{}
+		tid := Tiddler{}
+		jsonStr, err := json.Marshal(values)
+		if err != nil {
+			fmt.Errorf("Error on convert")
 		}
 
-		// Create new tiddler and append it to list of tiddlers
-		tiddler := NewTiddler(fmt.Sprintf("%s", values["title"]))
-		for _, key := range keys {
-			tiddler.AddField(key, fmt.Sprintf("%s", values[key]))
+		// Then unmarshall json string to object
+		err = json.Unmarshal([]byte(jsonStr), &tid)
+		if err != nil {
+			fmt.Errorf("Error creating tiddler")
 		}
-		tiddlers = append(tiddlers, tiddler)
+
+		tiddlers = append(tiddlers, &tid)
 	}
 	return tiddlers
 }
