@@ -20,6 +20,8 @@ func main() {
 		},
 	}
 
+	var appendText string
+
 	app := &cli.App{
 		Commands: []*cli.Command{
 			{
@@ -57,6 +59,41 @@ func main() {
 				},
 			},
 			{
+				Name:    "append",
+				Aliases: []string{"a"},
+				Flags: append([]cli.Flag{
+					&cli.StringFlag{
+						Name:        "text",
+						Usage:       "Text to append",
+						Destination: &appendText,
+					},
+				}, globalFlags...),
+				Usage: "Append content to an existing tiddler",
+				Action: func(c *cli.Context) error {
+					tw := tiddlywiki.NewTW(conf.TWHOST)
+					_, err := tw.Get("Golang")
+					if err != nil {
+						fmt.Printf("Errorf: %s", err)
+						return err
+					}
+
+					// Try to get tiddler
+					tiddler, err := tw.Get(c.String("name"))
+					if err != nil {
+						fmt.Printf("Couldn't get tiddler %s: %s", c.String("name"), err)
+						return nil
+					}
+
+					// Append
+					err = tw.Append(tiddler.Title, appendText)
+					if err != nil {
+						fmt.Printf("Couldn't append to %s", c.String("name"))
+						return nil
+					}
+					return nil
+				},
+			},
+			{
 				Name:    "delete",
 				Aliases: []string{"d"},
 				Flags:   globalFlags,
@@ -71,44 +108,5 @@ func main() {
 	err := app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)
-	}
-}
-
-func main2() {
-
-	// Get
-	tw := tiddlywiki.NewTW("http://127.0.0.1:8181")
-	_, err := tw.Get("Golang")
-	if err != nil {
-		fmt.Printf("Errorf: %s", err)
-		return
-	}
-
-	// Put
-	tid := tiddlywiki.Tiddler{
-		Title: "neu",
-		Tags:  "Golang Python",
-		Text:  "alles klar",
-		Type:  "text/vnd.tiddlywiki",
-	}
-
-	err = tw.Put(&tid)
-	if err != nil {
-		fmt.Printf("Errorf: %s", err)
-		return
-	}
-
-	// Append
-	err = tw.Append("neu", "alles klar bei dir")
-	if err != nil {
-		fmt.Printf("Errorf: %s", err)
-		return
-	}
-
-	// Delete
-	err = tw.Delete("neu")
-	if err != nil {
-		fmt.Printf("Errorf: %s", err)
-		return
 	}
 }

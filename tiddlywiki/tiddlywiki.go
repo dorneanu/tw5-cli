@@ -222,7 +222,7 @@ func (t *TW) Append(tiddlerName string, text string) error {
 
 	// Append text
 	// TODO: Have new line here or somewhere else?
-	tid.Text += fmt.Sprintf("\n\n%s", text)
+	tid.Text += fmt.Sprintf("\n%s", text)
 
 	// Put back tiddler
 	err = t.Put(tid)
